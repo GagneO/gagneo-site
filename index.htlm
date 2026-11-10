@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GagneO - Particuliers et Professionnels</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#17233b}
+header{background:#102b57;color:white;padding:24px;text-align:center}
+.logo{font-size:38px;font-weight:bold;color:#ffce45}
+nav{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+button{cursor:pointer;border:0;border-radius:9px;padding:13px 18px;font-weight:bold;font-size:15px}
+nav button{background:white;color:#102b57}
+.hero{text-align:center;padding:55px 20px;background:linear-gradient(135deg,#123e83,#177baf);color:white}
+.hero h1{font-size:34px;margin:0 0 18px}
+.hero p{font-size:18px;line-height:1.6}
+.gold{background:#ffce45;color:#15284a;margin:8px}
+.container{max-width:1000px;margin:auto;padding:30px 18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card,.panel{background:white;padding:25px;border-radius:15px;box-shadow:0 4px 15px #0001}
+.card h2{color:#123e83}
+.card p{line-height:1.6}
+.blue{background:#1266c3;color:white}
+.panel{max-width:520px;margin:25px auto}
+input,select{width:100%;padding:14px;margin:9px 0;border:1px solid #ccd5e1;border-radius:8px;font-size:16px}
+label{display:block;margin-top:12px;font-weight:bold}
+.full{width:100%;margin-top:15px}
+.hidden{display:none}
+.message{padding:12px;border-radius:8px;background:#e9f3ff;margin-top:15px}
+footer{text-align:center;background:#102b57;color:white;padding:25px;margin-top:40px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">GagneO</div>
+<p>La plateforme qui connecte les particuliers et les professionnels</p>
+<nav>
+<button onclick="show('accueil')">Accueil</button>
+<button onclick="show('particulier')">Particuliers</button>
+<button onclick="show('professionnel')">Professionnels</button>
+<button onclick="show('connexion')">Connexion</button>
+</nav>
+</header>
+
+<section id="accueil">
+<div class="hero">
+<h1>Bienvenue sur GagneO</h1>
+<p>Une plateforme pour rapprocher les particuliers et les professionnels et créer de nouvelles opportunités.</p>
+<button class="gold" onclick="show('particulier')">Je suis particulier</button>
+<button class="gold" onclick="show('professionnel')">Je suis professionnel</button>
+</div>
+<div class="container">
+<h2>Découvrez GagneO</h2>
+<div class="cards">
+<div class="card">
+<h2>👤 Particuliers</h2>
+<p>Créez votre espace personnel pour découvrir les services et les opportunités proposés sur GagneO.</p>
+<button class="blue" onclick="show('particulier')">M'inscrire</button>
+</div>
+<div class="card">
+<h2>🏢 Professionnels</h2>
+<p>Présentez votre activité, développez votre visibilité et rejoignez la communauté GagneO.</p>
+<button class="blue" onclick="show('professionnel')">Rejoindre GagneO</button>
+</div>
+</div>
+</div>
+</section>
+
+<section id="particulier" class="hidden">
+<div class="panel">
+<h2>Inscription Particulier</h2>
+<p>Créez votre compte personnel.</p>
+<form onsubmit="demo(event,'particulier')">
+<label>Prénom</label>
+<input type="text" name="prenom" required>
+<label>Nom</label>
+<input type="text" name="nom" required>
+<label>Adresse e-mail</label>
+<input type="email" name="email" autocomplete="email" required>
+<label>Mot de passe</label>
+<input type="password" name="password" minlength="8" autocomplete="new-password" required>
+<label>
+<input type="checkbox" required style="width:auto">
+ J'accepte les conditions d'utilisation
+</label>
+<button class="blue full">Créer mon compte</button>
+</form>
+<div id="msg-particulier"></div>
+</div>
+</section>
+
+<section id="professionnel" class="hidden">
+<div class="panel">
+<h2>Inscription Professionnel</h2>
+<p>Rejoignez la plateforme GagneO.</p>
+<form onsubmit="demo(event,'professionnel')">
+<label>Nom de l'entreprise</label>
+<input type="text" name="entreprise" required>
+<label>Nom du responsable</label>
+<input type="text" name="responsable" required>
+<label>Adresse e-mail professionnelle</label>
+<input type="email" name="email" required>
+<label>Numéro SIRET</label>
+<input type="text" name="siret" inputmode="numeric" pattern="[0-9]{14}" maxlength="14" required>
+<label>Secteur d'activité</label>
+<select name="secteur" required>
+<option value="">Choisir un secteur</option>
+<option>Commerce</option>
+<option>Artisanat</option>
+<option>Services</option>
+<option>Restauration</option>
+<option>Événementiel</option>
+<option>Autre</option>
+</select>
+<label>Mot de passe</label>
+<input type="password" name="password" minlength="8" autocomplete="new-password" required>
+<label>
+<input type="checkbox" required style="width:auto">
+ J'accepte les conditions d'utilisation
+</label>
+<button class="blue full">Créer mon compte professionnel</button>
+</form>
+<div id="msg-professionnel"></div>
+</div>
+</section>
+
+<section id="connexion" class="hidden">
+<div class="panel">
+<h2>Connexion GagneO</h2>
+<p>Accédez à votre espace.</p>
+<form onsubmit="demo(event,'connexion')">
+<label>Adresse e-mail</label>
+<input type="email" name="email" autocomplete="email" required>
+<label>Mot de passe</label>
+<input type="password" name="password" autocomplete="current-password" required>
+<button class="blue full">Se connecter</button>
+</form>
+<div id="msg-connexion"></div>
+</div>
+</section>
+
+<footer>
+<p>© 2026 GagneO - Tous droits réservés</p>
+<p>Particuliers & Professionnels</p>
+</footer>
+
+<script>
+function show(page){
+document.querySelectorAll('body > section').forEach(s=>{
+s.classList.add('hidden');
+});
+document.getElementById(page).classList.remove('hidden');
+window.scrollTo(0,0);
+}
+
+function demo(event,type){
+event.preventDefault();
+const el=document.getElementById('msg-'+type);
+el.className='message';
+el.textContent="Formulaire de démonstration : aucune donnée n'a été enregistrée. L'inscription et la connexion seront activées après la configuration sécurisée de Supabase.";
+}
+</script>
+</body>
+</html>
