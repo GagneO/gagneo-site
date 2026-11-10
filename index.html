@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GagneO - Bienvenue</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#18243a}
+header{background:#102b56;color:white;text-align:center;padding:35px 15px}
+header h1{font-size:46px;color:#ffd34d;margin:0}
+main{max-width:550px;margin:auto;padding:25px 18px}
+.card{background:white;border-radius:16px;padding:24px;margin:20px 0;box-shadow:0 4px 18px #0001}
+h2{text-align:center}
+button{background:#edb92e;color:#14233d;border:0;border-radius:9px;padding:15px;width:100%;font-size:17px;font-weight:bold;cursor:pointer;margin-top:12px}
+input,select{width:100%;padding:14px;border:1px solid #ccd2df;border-radius:8px;margin:8px 0;font-size:16px}
+.hidden{display:none}
+#message{padding:12px;text-align:center}
+footer{text-align:center;padding:25px;color:#687385}
+</style>
+</head>
+<body>
+<header>
+<h1>GagneO</h1>
+<p>Des opportunités pour tous !</p>
+</header>
+
+<main>
+<section class="card" id="accueil">
+<h2>Bienvenue sur GagneO</h2>
+<p>La plateforme qui connecte les particuliers et les professionnels.</p>
+<button onclick="afficher('inscription')">Créer un compte</button>
+<button onclick="afficher('connexion')">Se connecter</button>
+</section>
+
+<section class="card hidden" id="inscription">
+<h2>Créer mon compte</h2>
+<form id="formInscription">
+<select id="typeCompte" required>
+<option value="">Choisissez votre profil</option>
+<option value="particulier">Particulier</option>
+<option value="professionnel">Professionnel</option>
+</select>
+<input id="nom" placeholder="Nom ou entreprise" required>
+<input id="email" type="email" placeholder="Adresse e-mail" required>
+<input id="motdepasse" type="password" placeholder="Mot de passe (6 caractères minimum)" minlength="6" required>
+<button type="submit">S'inscrire</button>
+</form>
+<button onclick="afficher('accueil')">Retour</button>
+</section>
+
+<section class="card hidden" id="connexion">
+<h2>Connexion</h2>
+<form id="formConnexion">
+<input id="emailConnexion" type="email" placeholder="Adresse e-mail" required>
+<input id="mdpConnexion" type="password" placeholder="Mot de passe" required>
+<button type="submit">Se connecter</button>
+</form>
+<button onclick="afficher('accueil')">Retour</button>
+</section>
+
+<section class="card hidden" id="espace">
+<h2>Mon espace GagneO</h2>
+<p id="bienvenue"></p>
+<button onclick="deconnexion()">Se déconnecter</button>
+</section>
+<p id="message" role="status"></p>
+</main>
+
+<footer>© 2026 GagneO - Tous droits réservés</footer>
+
+<script>
+const sections=['accueil','inscription','connexion','espace'];
+function afficher(id){
+sections.forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));
+document.getElementById('message').textContent='';
+}
+function message(texte){
+document.getElementById('message').textContent=texte;
+}
+document.getElementById('formInscription').addEventListener('submit',e=>{
+e.preventDefault();
+message("Formulaire prêt ! La création réelle du compte sera activée après connexion à Supabase.");
+});
+document.getElementById('formConnexion').addEventListener('submit',e=>{
+e.preventDefault();
+message("Connexion à activer avec Supabase.");
+});
+function deconnexion(){afficher('accueil')}
+</script>
+</body>
+</html>
