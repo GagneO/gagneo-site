@@ -25,7 +25,7 @@ h2{line-height:1.3}
 .card{background:var(--card);border:1px solid #303440;border-radius:20px;padding:25px}
 .panel{max-width:580px;margin:24px auto}
 label{display:block;margin-top:15px}
-input{display:block;width:100%;background:#101218;color:white;border:1px solid #515565;border-radius:10px;padding:13px;font:inherit;margin-top:6px}
+input,textarea{display:block;width:100%;background:#101218;color:white;border:1px solid #515565;border-radius:10px;padding:13px;font:inherit;margin-top:6px}
 form button{margin-top:22px}
 [hidden]{display:none!important}
 #message{padding:16px;border-radius:12px;background:#202b27;color:#b8f1cf;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -67,7 +67,7 @@ footer{font-size:14px;color:#a9adba}
 <p>Inscrivez votre entreprise pour rejoindre le projet et préparer la présentation de vos services.</p>
 </article>
 </div>
-<p class="muted">GagneO est en cours de lancement. Les offres et leur publication seront ajoutées dans une prochaine étape.</p>
+<p class="muted">GagneO est en cours de lancement. Connectez-vous pour consulter les offres. Les professionnels peuvent publier leurs réductions depuis leur espace.</p>
 </section>
 
 <section id="signup" class="card panel" hidden>
@@ -119,7 +119,23 @@ footer{font-size:14px;color:#a9adba}
 <h2 id="welcome">Bienvenue</h2>
 <p id="accountEmail"></p>
 <p id="accountType"></p>
-<p class="muted">Vous êtes connecté à votre compte. Les offres, économies et outils professionnels seront ajoutés au fur et à mesure du lancement.</p>
+<div id="proOffers" hidden>
+<h2>Publier une offre</h2>
+<form id="offerForm">
+<label>Titre de l’offre<input name="title" maxlength="160" required></label>
+<label>Description et conditions<textarea name="description" rows="4" maxlength="3000" required></textarea></label>
+<label>Ville<input name="city" maxlength="120" required></label>
+<label>Prix habituel (€)<input name="original_price" type="number" min="0.01" step="0.01" required></label>
+<label>Prix réduit (€)<input name="reduced_price" type="number" min="0" step="0.01" required></label>
+<p id="savingPreview" class="badge" aria-live="polite">Économie : —</p>
+<label>Fin de validité<input name="expires_at" type="datetime-local" required></label>
+<button type="submit">Publier mon offre</button>
+<p id="offerResult" role="status"></p>
+</form></div>
+<h2>Les offres pour économiser</h2>
+<button id="refreshOffers" class="secondary" type="button">Actualiser les offres</button>
+<p id="offersStatus" role="status"></p>
+<div id="offersList"></div>
 </section>
 </main>
 
@@ -133,6 +149,7 @@ const $ = id => document.getElementById(id);
 let client = null;
 let accountType = "particulier";
 let signedIn = false;
+let offerRequest = 0;
 
 function message(text, error = false) {
   $("message").textContent = text;
@@ -177,6 +194,7 @@ function renderSession(session) {
   }
 
   const user = session.user;
+  $("proOffers").hidden = user.user_metadata?.account_type !== "professionnel";
   const info = user.user_metadata || {};
   $("welcome").textContent = info.first_name
     ? "Bienvenue, " + info.first_name
@@ -189,6 +207,7 @@ function renderSession(session) {
         ? "Compte particulier"
         : "Compte GagneO";
   show("dashboard");
+  loadOffers();
 }
 
 function openSignup(type) {
@@ -311,6 +330,86 @@ $("logoutButton").onclick = async () => {
   } finally {
     $("logoutButton").disabled = false;
   }
+};
+
+
+const euros = n => Number(n).toLocaleString("fr-FR", {style:"currency",currency:"EUR"});
+const offerForm = $("offerForm");
+offerForm.oninput = () => {
+  const a = Number(offerForm.elements.original_price.value);
+  const b = Number(offerForm.elements.reduced_price.value);
+  $("savingPreview").textContent = a > b && b >= 0
+    ? "Économie : " + euros(a-b) : "Le prix réduit doit être inférieur au prix habituel.";
+};
+$("refreshOffers").onclick = loadOffers;
+async function loadOffers() {
+  if (!client || !signedIn) return;
+  const request = ++offerRequest;
+  $("offersStatus").textContent = "Chargement des offres…";
+  $("offersList").replaceChildren();
+  try {
+    const {data,error} = await client.from("offers")
+      .select("id,title,description,company_name,city,original_price,reduced_price,expires_at")
+      .eq("published",true).gt("expires_at",new Date().toISOString())
+      .order("created_at",{ascending:false}).limit(50);
+    if (request !== offerRequest || !signedIn) return;
+    if (error) throw error;
+    $("offersStatus").textContent = data.length ? "" : "Aucune offre publiée pour le moment.";
+    for (const o of data) {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.marginTop = "20px";
+      const h = document.createElement("h3");
+      h.textContent = o.title;
+      card.append(h);
+      for (const text of [
+        [o.company_name,o.city].filter(Boolean).join(" — "),o.description,
+        "Prix habituel : "+euros(o.original_price),
+        "Prix réduit : "+euros(o.reduced_price),
+        "Vous économisez "+euros(o.original_price-o.reduced_price),
+        "Valable jusqu’au "+new Date(o.expires_at).toLocaleString("fr-FR")
+      ]) {
+        const p = document.createElement("p");
+        p.textContent = text;
+        card.append(p);
+      }
+      $("offersList").append(card);
+    }
+  } catch(e) {
+    if (request === offerRequest) $("offersStatus").textContent =
+      "Chargement impossible : "+(e.message || String(e));
+  }
+}
+offerForm.onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget,async () => {
+    $("offerResult").textContent = "";
+    const {data:auth,error:authError} = await client.auth.getUser();
+    if (authError) throw authError;
+    const u = auth.user;
+    if (!u || u.user_metadata?.account_type !== "professionnel")
+      throw new Error("Connectez-vous avec votre compte professionnel.");
+    const f = offerForm.elements;
+    const a = Number(f.original_price.value), b = Number(f.reduced_price.value);
+    const end = new Date(f.expires_at.value);
+    const title = f.title.value.trim(), description = f.description.value.trim(), city = f.city.value.trim();
+    if (!title || !description || !city) throw new Error("Complétez tous les champs.");
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a <= 0 || b < 0 || b >= a)
+      throw new Error("Le prix réduit doit être positif ou nul et inférieur au prix habituel.");
+    if (!Number.isFinite(end.getTime()) || end <= new Date())
+      throw new Error("Choisissez une fin de validité dans le futur.");
+    const {error} = await client.from("offers").insert({
+      owner_id:u.id,title,description,city,
+      company_name:u.user_metadata.company_name || "",
+      original_price:a,reduced_price:b,expires_at:end.toISOString(),published:true
+    });
+    if (error) throw error;
+    offerForm.reset();
+    $("savingPreview").textContent = "Économie : —";
+    $("offerResult").textContent = "Votre offre a été publiée.";
+    message("Votre offre a été publiée.");
+    await loadOffers();
+  });
 };
 
 async function init() {
