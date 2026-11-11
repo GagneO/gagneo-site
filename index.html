@@ -51,7 +51,7 @@ footer{font-size:14px;color:#a9adba}
 <div class="hero">
 <span class="badge">PARTICULIERS & PROFESSIONNELS</span>
 <h1>Votre quotidien mérite plus d’économies.</h1>
-<p class="muted">GagneO prépare un espace pour découvrir des offres et mettre en relation particuliers et professionnels.</p>
+<p class="muted">Découvrez les réductions des professionnels et comparez les prix pour faire des économies.</p>
 <div class="actions">
 <button id="individualButton" type="button">Inscription particulier</button>
 <button class="secondary" id="professionalButton" type="button">Inscription professionnel</button>
@@ -60,14 +60,14 @@ footer{font-size:14px;color:#a9adba}
 <div class="grid">
 <article class="card">
 <h2>Pour les particuliers</h2>
-<p>Créez votre compte pour rejoindre GagneO et préparer votre accès aux futures offres.</p>
+<p>Créez votre compte pour consulter les offres et découvrir combien vous pouvez économiser sur chaque achat.</p>
 </article>
 <article class="card">
 <h2>Pour les professionnels</h2>
-<p>Inscrivez votre entreprise pour rejoindre le projet et préparer la présentation de vos services.</p>
+<p>Présentez votre entreprise et publiez vos offres avec leur prix habituel, leur prix réduit et leurs conditions.</p>
 </article>
 </div>
-<p class="muted">GagneO est en cours de lancement. Connectez-vous pour consulter les offres. Les professionnels peuvent publier leurs réductions depuis leur espace.</p>
+<p class="muted">GagneO est en cours de lancement. Connectez-vous pour consulter les offres disponibles.</p>
 </section>
 
 <section id="signup" class="card panel" hidden>
@@ -111,7 +111,7 @@ footer{font-size:14px;color:#a9adba}
 
 <button type="submit">Me connecter</button>
 </form>
-<p class="muted">Si tu as déjà créé un compte, utilise ici ton e-mail et ton mot de passe habituels.</p>
+<p class="muted">Si vous avez déjà créé un compte, utilisez votre e-mail et votre mot de passe habituels.</p>
 </section>
 
 <section id="dashboard" class="card panel" hidden>
@@ -119,19 +119,34 @@ footer{font-size:14px;color:#a9adba}
 <h2 id="welcome">Bienvenue</h2>
 <p id="accountEmail"></p>
 <p id="accountType"></p>
+
 <div id="proOffers" hidden>
 <h2>Publier une offre</h2>
 <form id="offerForm">
-<label>Titre de l’offre<input name="title" maxlength="160" required></label>
-<label>Description et conditions<textarea name="description" rows="4" maxlength="3000" required></textarea></label>
-<label>Ville<input name="city" maxlength="120" required></label>
-<label>Prix habituel (€)<input name="original_price" type="number" min="0.01" step="0.01" required></label>
-<label>Prix réduit (€)<input name="reduced_price" type="number" min="0" step="0.01" required></label>
+<label>Titre de l’offre
+<input name="title" maxlength="160" required>
+</label>
+<label>Description et conditions
+<textarea name="description" rows="4" maxlength="3000" required></textarea>
+</label>
+<label>Ville
+<input name="city" maxlength="120" required>
+</label>
+<label>Prix habituel (€)
+<input name="original_price" type="number" min="0.01" step="0.01" required>
+</label>
+<label>Prix réduit (€)
+<input name="reduced_price" type="number" min="0" step="0.01" required>
+</label>
 <p id="savingPreview" class="badge" aria-live="polite">Économie : —</p>
-<label>Fin de validité<input name="expires_at" type="datetime-local" required></label>
+<label>Fin de validité
+<input name="expires_at" type="datetime-local" required>
+</label>
 <button type="submit">Publier mon offre</button>
 <p id="offerResult" role="status"></p>
-</form></div>
+</form>
+</div>
+
 <h2>Les offres pour économiser</h2>
 <button id="refreshOffers" class="secondary" type="button">Actualiser les offres</button>
 <p id="offersStatus" role="status"></p>
@@ -146,6 +161,8 @@ footer{font-size:14px;color:#a9adba}
 "use strict";
 
 const $ = id => document.getElementById(id);
+const OFFERS_TABLE = "gagneo_offers";
+
 let client = null;
 let accountType = "particulier";
 let signedIn = false;
@@ -165,21 +182,27 @@ function show(section) {
 
 function friendlyError(error) {
   const text = error?.message || String(error);
+
   if (/invalid login credentials/i.test(text)) {
-    return "E-mail ou mot de passe incorrect. Si le compte existe déjà, connecte-toi avec son mot de passe.";
+    return "E-mail ou mot de passe incorrect. Utilisez les identifiants de votre compte existant.";
   }
+
   if (/email not confirmed/i.test(text)) {
-    return "Confirme d’abord ton adresse e-mail avec le lien reçu dans ta messagerie. Vérifie aussi les courriers indésirables.";
+    return "Confirmez votre adresse e-mail avec le lien reçu dans votre messagerie. Vérifiez aussi les courriers indésirables.";
   }
+
   if (/already registered/i.test(text)) {
-    return "Ce compte existe déjà. Utilise le bouton Connexion.";
+    return "Ce compte existe déjà. Utilisez le bouton Connexion.";
   }
+
   if (/rate limit|too many requests|security purposes/i.test(text)) {
-    return "Trop de tentatives rapprochées. Patiente quelques minutes avant de réessayer.";
+    return "Trop de tentatives rapprochées. Patientez quelques minutes avant de réessayer.";
   }
+
   if (/failed to fetch|network/i.test(text)) {
-    return "Connexion au serveur impossible. Vérifie ta connexion Internet puis réessaie.";
+    return "Connexion au serveur impossible. Vérifiez votre connexion Internet puis réessayez.";
   }
+
   return "Supabase indique : " + text;
 }
 
@@ -189,50 +212,65 @@ function renderSession(session) {
   $("logoutButton").hidden = !signedIn;
 
   if (!signedIn) {
+    offerRequest++;
+    $("offersList").replaceChildren();
+    $("proOffers").hidden = true;
     show("home");
     return;
   }
 
   const user = session.user;
-  $("proOffers").hidden = user.user_metadata?.account_type !== "professionnel";
   const info = user.user_metadata || {};
+
+  $("proOffers").hidden = info.account_type !== "professionnel";
+
   $("welcome").textContent = info.first_name
     ? "Bienvenue, " + info.first_name
     : "Bienvenue sur GagneO";
+
   $("accountEmail").textContent = user.email || "";
+
   $("accountType").textContent =
     info.account_type === "professionnel"
       ? "Compte professionnel" + (info.company_name ? " — " + info.company_name : "")
       : info.account_type === "particulier"
         ? "Compte particulier"
         : "Compte GagneO";
+
   show("dashboard");
   loadOffers();
 }
 
 function openSignup(type) {
   message("");
+
   if (signedIn) {
     show("dashboard");
     return;
   }
+
   accountType = type;
   const professional = type === "professionnel";
+
   $("signupTitle").textContent = professional
     ? "Créer un compte professionnel"
     : "Créer un compte particulier";
+
   $("professionalFields").hidden = !professional;
   $("companyName").required = professional;
   $("activity").required = professional;
+
   show("signup");
 }
 
 $("individualButton").onclick = () => openSignup("particulier");
 $("professionalButton").onclick = () => openSignup("professionnel");
+
 $("homeButton").onclick = () => {
   message("");
   show(signedIn ? "dashboard" : "home");
 };
+
 $("loginButton").onclick = () => {
   message("");
   show("login");
@@ -240,12 +278,15 @@ $("loginButton").onclick = () => {
 
 async function submit(form, action) {
   const button = form.querySelector('button[type="submit"]');
+
   if (!client) {
-    message("La connexion à Supabase n’a pas pu démarrer. Recharge la page avec une connexion Internet active.", true);
+    message("La connexion à Supabase n’a pas pu démarrer. Rechargez la page avec une connexion Internet active.", true);
     return;
   }
+
   button.disabled = true;
   message("");
+
   try {
     await action();
   } catch (error) {
@@ -257,8 +298,10 @@ async function submit(form, action) {
 
 $("signupForm").onsubmit = event => {
   event.preventDefault();
+
   submit(event.currentTarget, async () => {
     const password = $("signupPassword").value;
+
     if (password !== $("confirmPassword").value) {
       message("Les deux mots de passe ne sont pas identiques.", true);
       return;
@@ -291,6 +334,7 @@ $("signupForm").onsubmit = event => {
     });
 
     if (error) throw error;
+
     $("signupForm").reset();
 
     if (data.session) {
@@ -298,19 +342,22 @@ $("signupForm").onsubmit = event => {
       message("Votre compte est créé et vous êtes connecté.");
     } else {
       show("login");
-      message("Demande d’inscription envoyée. Si un e-mail de confirmation vous est adressé, ouvrez son lien avant de vous connecter. Si vous avez déjà un compte, connectez-vous avec votre mot de passe habituel.");
+      message("Demande d’inscription envoyée. Si vous recevez un e-mail de confirmation, ouvrez son lien avant de vous connecter. Si vous avez déjà un compte, utilisez votre mot de passe habituel.");
     }
   });
 };
 
 $("loginForm").onsubmit = event => {
   event.preventDefault();
+
   submit(event.currentTarget, async () => {
     const { data, error } = await client.auth.signInWithPassword({
       email: $("loginEmail").value.trim(),
       password: $("loginPassword").value
     });
+
     if (error) throw error;
+
     $("loginForm").reset();
     renderSession(data.session);
     message("Connexion réussie.");
@@ -319,10 +366,14 @@ $("loginForm").onsubmit = event => {
 
 $("logoutButton").onclick = async () => {
   if (!client) return;
+
   $("logoutButton").disabled = true;
+
   try {
     const { error } = await client.auth.signOut();
+
     if (error) throw error;
+
     renderSession(null);
     message("Vous êtes déconnecté.");
   } catch (error) {
@@ -332,105 +383,176 @@ $("logoutButton").onclick = async () => {
   }
 };
 
+const euros = n => Number(n).toLocaleString("fr-FR", {
+  style: "currency",
+  currency: "EUR"
+});
 
-const euros = n => Number(n).toLocaleString("fr-FR", {style:"currency",currency:"EUR"});
 const offerForm = $("offerForm");
+
 offerForm.oninput = () => {
-  const a = Number(offerForm.elements.original_price.value);
-  const b = Number(offerForm.elements.reduced_price.value);
-  $("savingPreview").textContent = a > b && b >= 0
-    ? "Économie : " + euros(a-b) : "Le prix réduit doit être inférieur au prix habituel.";
+  const f = offerForm.elements;
+
+  if (f.original_price.value === "" || f.reduced_price.value === "") {
+    $("savingPreview").textContent = "Économie : —";
+    return;
+  }
+
+  const original = Number(f.original_price.value);
+  const reduced = Number(f.reduced_price.value);
+
+  $("savingPreview").textContent = original > reduced && reduced >= 0
+    ? "Économie : " + euros(original - reduced)
+    : "Le prix réduit doit être inférieur au prix habituel.";
 };
+
 $("refreshOffers").onclick = loadOffers;
+
 async function loadOffers() {
   if (!client || !signedIn) return;
+
   const request = ++offerRequest;
+
   $("offersStatus").textContent = "Chargement des offres…";
   $("offersList").replaceChildren();
+
   try {
-    const {data,error} = await client.from("offers")
+    const { data, error } = await client
+      .from(OFFERS_TABLE)
       .select("id,title,description,company_name,city,original_price,reduced_price,expires_at")
-      .eq("published",true).gt("expires_at",new Date().toISOString())
-      .order("created_at",{ascending:false}).limit(50);
+      .eq("published", true)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(50);
+
     if (request !== offerRequest || !signedIn) return;
     if (error) throw error;
-    $("offersStatus").textContent = data.length ? "" : "Aucune offre publiée pour le moment.";
-    for (const o of data) {
+
+    const offers = data || [];
+
+    $("offersStatus").textContent = offers.length
+      ? ""
+      : "Aucune offre publiée pour le moment.";
+
+    for (const offer of offers) {
       const card = document.createElement("article");
       card.className = "card";
       card.style.marginTop = "20px";
-      const h = document.createElement("h3");
-      h.textContent = o.title;
-      card.append(h);
-      for (const text of [
-        [o.company_name,o.city].filter(Boolean).join(" — "),o.description,
-        "Prix habituel : "+euros(o.original_price),
-        "Prix réduit : "+euros(o.reduced_price),
-        "Vous économisez "+euros(o.original_price-o.reduced_price),
-        "Valable jusqu’au "+new Date(o.expires_at).toLocaleString("fr-FR")
-      ]) {
-        const p = document.createElement("p");
-        p.textContent = text;
-        card.append(p);
+
+      const heading = document.createElement("h3");
+      heading.textContent = offer.title;
+      card.append(heading);
+
+      const lines = [
+        [offer.company_name, offer.city].filter(Boolean).join(" — "),
+        offer.description,
+        "Prix habituel : " + euros(offer.original_price),
+        "Prix réduit : " + euros(offer.reduced_price),
+        "Vous économisez " + euros(offer.original_price - offer.reduced_price),
+        "Valable jusqu’au " + new Date(offer.expires_at).toLocaleString("fr-FR")
+      ];
+
+      for (const text of lines) {
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
+        card.append(paragraph);
       }
+
       $("offersList").append(card);
     }
-  } catch(e) {
-    if (request === offerRequest) $("offersStatus").textContent =
-      "Chargement impossible : "+(e.message || String(e));
+  } catch (error) {
+    if (request === offerRequest && signedIn) {
+      $("offersStatus").textContent =
+        "Chargement impossible. " + friendlyError(error);
+    }
   }
 }
+
 offerForm.onsubmit = event => {
   event.preventDefault();
-  submit(event.currentTarget,async () => {
+
+  submit(event.currentTarget, async () => {
     $("offerResult").textContent = "";
-    const {data:auth,error:authError} = await client.auth.getUser();
+
+    const { data: auth, error: authError } = await client.auth.getUser();
+
     if (authError) throw authError;
-    const u = auth.user;
-    if (!u || u.user_metadata?.account_type !== "professionnel")
+
+    const user = auth.user;
+
+    if (!user || user.user_metadata?.account_type !== "professionnel") {
       throw new Error("Connectez-vous avec votre compte professionnel.");
+    }
+
     const f = offerForm.elements;
-    const a = Number(f.original_price.value), b = Number(f.reduced_price.value);
+    const original = Number(f.original_price.value);
+    const reduced = Number(f.reduced_price.value);
     const end = new Date(f.expires_at.value);
-    const title = f.title.value.trim(), description = f.description.value.trim(), city = f.city.value.trim();
-    if (!title || !description || !city) throw new Error("Complétez tous les champs.");
-    if (!Number.isFinite(a) || !Number.isFinite(b) || a <= 0 || b < 0 || b >= a)
+    const title = f.title.value.trim();
+    const description = f.description.value.trim();
+    const city = f.city.value.trim();
+
+    if (!title || !description || !city) {
+      throw new Error("Complétez tous les champs.");
+    }
+
+    if (!Number.isFinite(original) || !Number.isFinite(reduced) ||
+        original <= 0 || reduced < 0 || reduced >= original) {
       throw new Error("Le prix réduit doit être positif ou nul et inférieur au prix habituel.");
-    if (!Number.isFinite(end.getTime()) || end <= new Date())
+    }
+
+    if (!Number.isFinite(end.getTime()) || end <= new Date()) {
       throw new Error("Choisissez une fin de validité dans le futur.");
-    const {error} = await client.from("offers").insert({
-      owner_id:u.id,title,description,city,
-      company_name:u.user_metadata.company_name || "",
-      original_price:a,reduced_price:b,expires_at:end.toISOString(),published:true
+    }
+
+    const { error } = await client.from(OFFERS_TABLE).insert({
+      owner_id: user.id,
+      title,
+      description,
+      city,
+      company_name: user.user_metadata.company_name || "",
+      original_price: original,
+      reduced_price: reduced,
+      expires_at: end.toISOString(),
+      published: true
     });
+
     if (error) throw error;
+
     offerForm.reset();
     $("savingPreview").textContent = "Économie : —";
     $("offerResult").textContent = "Votre offre a été publiée.";
     message("Votre offre a été publiée.");
+
     await loadOffers();
   });
 };
 
 async function init() {
   try {
-    if (!window.supabase) throw new Error("Le module Supabase n’a pas pu être chargé. Recharge la page.");
+    if (!window.supabase) {
+      throw new Error("Le module Supabase n’a pas pu être chargé. Rechargez la page.");
+    }
+
     client = window.supabase.createClient(
       "https://irgobjrwdjmvvvvgtdhl.supabase.co",
       "sb_publishable_AfFGoMzcDWQK_DzrU1TBqw_hqioF9eu"
     );
 
     client.auth.onAuthStateChange((_event, session) => {
-      renderSession(session);
+      setTimeout(() => renderSession(session), 0);
     });
 
     const { data, error } = await client.auth.getSession();
+
     if (error) throw error;
+
     renderSession(data.session);
   } catch (error) {
     message(friendlyError(error), true);
   }
 }
+
 init();
 </script>
 </body>
