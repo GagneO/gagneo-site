@@ -1,1 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101218">
+<title>GagneO — Particuliers et professionnels</title>
+<style>
+:root{color-scheme:dark;--gold:#e9c675;--bg:#101218;--card:#1b1e27}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#f5f5f5;font-family:Arial,sans-serif;line-height:1.6}
+header,main,footer{max-width:1050px;margin:auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-size:30px;font-weight:bold;color:var(--gold);text-decoration:none}
+nav,.actions{display:flex;gap:12px;flex-wrap:wrap}
+button{background:var(--gold);color:#151515;border:0;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:bold;cursor:pointer}
+button.secondary{background:transparent;color:var(--gold);border:1px solid #665837}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,a:focus-visible{outline:3px solid white;outline-offset:4px}
+.hero{padding:45px 0}
+h1{font-size:clamp(34px,7vw,60px);line-height:1.12;max-width:800px}
+h2{line-height:1.3}
+.muted{color:#bdc1cc}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:28px 0}
+.card{background:var(--card);border:1px solid #303440;border-radius:20px;padding:25px}
+.panel{max-width:580px;margin:24px auto}
+label{display:block;margin-top:15px}
+input{display:block;width:100%;background:#101218;color:white;border:1px solid #515565;border-radius:10px;padding:13px;font:inherit;margin-top:6px}
+form button{margin-top:22px}
+[hidden]{display:none!important}
+#message{padding:16px;border-radius:12px;background:#202b27;color:#b8f1cf;white-space:pre-wrap;overflow-wrap:anywhere}
+#message.error{background:#392327;color:#ffbdc4}
+footer{font-size:14px;color:#a9adba}
+.badge{color:var(--gold)}
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="./">GagneO</a>
+<nav aria-label="Navigation">
+<button class="secondary" id="homeButton" type="button">Accueil</button>
+<button id="loginButton" type="button">Connexion</button>
+<button class="secondary" id="logoutButton" type="button" hidden>Déconnexion</button>
+</nav>
+</header>
 
+<main>
+<p id="message" role="status" aria-live="polite" hidden></p>
+
+<section id="home">
+<div class="hero">
+<span class="badge">PARTICULIERS & PROFESSIONNELS</span>
+<h1>Votre quotidien mérite plus d’économies.</h1>
+<p class="muted">GagneO prépare un espace pour découvrir des offres et mettre en relation particuliers et professionnels.</p>
+<div class="actions">
+<button id="individualButton" type="button">Inscription particulier</button>
+<button class="secondary" id="professionalButton" type="button">Inscription professionnel</button>
+</div>
+</div>
+<div class="grid">
+<article class="card">
+<h2>Pour les particuliers</h2>
+<p>Créez votre compte pour rejoindre GagneO et préparer votre accès aux futures offres.</p>
+</article>
+<article class="card">
+<h2>Pour les professionnels</h2>
+<p>Inscrivez votre entreprise pour rejoindre le projet et préparer la présentation de vos services.</p>
+</article>
+</div>
+<p class="muted">GagneO est en cours de lancement. Les offres et leur publication seront ajoutées dans une prochaine étape.</p>
+</section>
+
+<section id="signup" class="card panel" hidden>
+<h2 id="signupTitle">Créer un compte</h2>
+<form id="signupForm">
+<label for="firstName">Prénom</label>
+<input id="firstName" autocomplete="given-name" maxlength="100" required>
+
+<label for="lastName">Nom</label>
+<input id="lastName" autocomplete="family-name" maxlength="100" required>
+
+<div id="professionalFields" hidden>
+<label for="companyName">Nom de l’entreprise</label>
+<input id="companyName" autocomplete="organization" maxlength="160">
+
+<label for="activity">Activité ou service proposé</label>
+<input id="activity" maxlength="200">
+</div>
+
+<label for="signupEmail">Adresse e-mail</label>
+<input id="signupEmail" type="email" autocomplete="email" required>
+
+<label for="signupPassword">Mot de passe — 8 caractères minimum</label>
+<input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required>
+
+<label for="confirmPassword">Confirmer le mot de passe</label>
+<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+
+<button type="submit">Créer mon compte</button>
+</form>
+</section>
+
+<section id="login" class="card panel" hidden>
+<h2>Se connecter à GagneO</h2>
+<form id="loginForm">
+<label for="loginEmail">Adresse e-mail</label>
+<input id="loginEmail" type="email" autocomplete="email" required>
+
+<label for="loginPassword">Mot de passe</label>
+<input id="loginPassword" type="password" autocomplete="current-password" required>
+
+<button type="submit">Me connecter</button>
+</form>
+<p class="muted">Si tu as déjà créé un compte, utilise ici ton e-mail et ton mot de passe habituels.</p>
+</section>
+
+<section id="dashboard" class="card panel" hidden>
+<span class="badge">MON ESPACE GAGNEO</span>
+<h2 id="welcome">Bienvenue</h2>
+<p id="accountEmail"></p>
+<p id="accountType"></p>
+<p class="muted">Vous êtes connecté à votre compte. Les offres, économies et outils professionnels seront ajoutés au fur et à mesure du lancement.</p>
+</section>
+</main>
+
+<footer>© GagneO — Économies et opportunités au quotidien.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+let client = null;
+let accountType = "particulier";
+let signedIn = false;
+
+function message(text, error = false) {
+  $("message").textContent = text;
+  $("message").classList.toggle("error", error);
+  $("message").hidden = !text;
+}
+
+function show(section) {
+  for (const id of ["home", "signup", "login", "dashboard"]) {
+    $(id).hidden = id !== section;
+  }
+}
+
+function friendlyError(error) {
+  const text = error?.message || String(error);
+  if (/invalid login credentials/i.test(text)) {
+    return "E-mail ou mot de passe incorrect. Si le compte existe déjà, connecte-toi avec son mot de passe.";
+  }
+  if (/email not confirmed/i.test(text)) {
+    return "Confirme d’abord ton adresse e-mail avec le lien reçu dans ta messagerie. Vérifie aussi les courriers indésirables.";
+  }
+  if (/already registered/i.test(text)) {
+    return "Ce compte existe déjà. Utilise le bouton Connexion.";
+  }
+  if (/rate limit|too many requests|security purposes/i.test(text)) {
+    return "Trop de tentatives rapprochées. Patiente quelques minutes avant de réessayer.";
+  }
+  if (/failed to fetch|network/i.test(text)) {
+    return "Connexion au serveur impossible. Vérifie ta connexion Internet puis réessaie.";
+  }
+  return "Supabase indique : " + text;
+}
+
+function renderSession(session) {
+  signedIn = Boolean(session?.user);
+  $("loginButton").hidden = signedIn;
+  $("logoutButton").hidden = !signedIn;
+
+  if (!signedIn) {
+    show("home");
+    return;
+  }
+
+  const user = session.user;
+  const info = user.user_metadata || {};
+  $("welcome").textContent = info.first_name
+    ? "Bienvenue, " + info.first_name
+    : "Bienvenue sur GagneO";
+  $("accountEmail").textContent = user.email || "";
+  $("accountType").textContent =
+    info.account_type === "professionnel"
+      ? "Compte professionnel" + (info.company_name ? " — " + info.company_name : "")
+      : info.account_type === "particulier"
+        ? "Compte particulier"
+        : "Compte GagneO";
+  show("dashboard");
+}
+
+function openSignup(type) {
+  message("");
+  if (signedIn) {
+    show("dashboard");
+    return;
+  }
+  accountType = type;
+  const professional = type === "professionnel";
+  $("signupTitle").textContent = professional
+    ? "Créer un compte professionnel"
+    : "Créer un compte particulier";
+  $("professionalFields").hidden = !professional;
+  $("companyName").required = professional;
+  $("activity").required = professional;
+  show("signup");
+}
+
+$("individualButton").onclick = () => openSignup("particulier");
+$("professionalButton").onclick = () => openSignup("professionnel");
+$("homeButton").onclick = () => {
+  message("");
+  show(signedIn ? "dashboard" : "home");
+};
+$("loginButton").onclick = () => {
+  message("");
+  show("login");
+};
+
+async function submit(form, action) {
+  const button = form.querySelector('button[type="submit"]');
+  if (!client) {
+    message("La connexion à Supabase n’a pas pu démarrer. Recharge la page avec une connexion Internet active.", true);
+    return;
+  }
+  button.disabled = true;
+  message("");
+  try {
+    await action();
+  } catch (error) {
+    message(friendlyError(error), true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+$("signupForm").onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget, async () => {
+    const password = $("signupPassword").value;
+    if (password !== $("confirmPassword").value) {
+      message("Les deux mots de passe ne sont pas identiques.", true);
+      return;
+    }
+
+    const firstName = $("firstName").value.trim();
+    const lastName = $("lastName").value.trim();
+    const company = $("companyName").value.trim();
+    const activity = $("activity").value.trim();
+
+    if (!firstName || !lastName ||
+        (accountType === "professionnel" && (!company || !activity))) {
+      message("Merci de remplir tous les champs demandés.", true);
+      return;
+    }
+
+    const { data, error } = await client.auth.signUp({
+      email: $("signupEmail").value.trim(),
+      password,
+      options: {
+        data: {
+          account_type: accountType,
+          first_name: firstName,
+          last_name: lastName,
+          full_name: firstName + " " + lastName,
+          company_name: accountType === "professionnel" ? company : "",
+          activity: accountType === "professionnel" ? activity : ""
+        }
+      }
+    });
+
+    if (error) throw error;
+    $("signupForm").reset();
+
+    if (data.session) {
+      renderSession(data.session);
+      message("Votre compte est créé et vous êtes connecté.");
+    } else {
+      show("login");
+      message("Demande d’inscription envoyée. Si un e-mail de confirmation vous est adressé, ouvrez son lien avant de vous connecter. Si vous avez déjà un compte, connectez-vous avec votre mot de passe habituel.");
+    }
+  });
+};
+
+$("loginForm").onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget, async () => {
+    const { data, error } = await client.auth.signInWithPassword({
+      email: $("loginEmail").value.trim(),
+      password: $("loginPassword").value
+    });
+    if (error) throw error;
+    $("loginForm").reset();
+    renderSession(data.session);
+    message("Connexion réussie.");
+  });
+};
+
+$("logoutButton").onclick = async () => {
+  if (!client) return;
+  $("logoutButton").disabled = true;
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+    renderSession(null);
+    message("Vous êtes déconnecté.");
+  } catch (error) {
+    message(friendlyError(error), true);
+  } finally {
+    $("logoutButton").disabled = false;
+  }
+};
+
+async function init() {
+  try {
+    if (!window.supabase) throw new Error("Le module Supabase n’a pas pu être chargé. Recharge la page.");
+    client = window.supabase.createClient(
+      "https://irgobjrwdjmvvvvgtdhl.supabase.co",
+      "sb_publishable_AfFGoMzcDWQK_DzrU1TBqw_hqioF9eu"
+    );
+
+    client.auth.onAuthStateChange((_event, session) => {
+      renderSession(session);
+    });
+
+    const { data, error } = await client.auth.getSession();
+    if (error) throw error;
+    renderSession(data.session);
+  } catch (error) {
+    message(friendlyError(error), true);
+  }
+}
+init();
+</script>
+</body>
+</html>
