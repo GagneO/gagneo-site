@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101218">
+<title>GagneO — Particuliers et professionnels</title>
+<style>
+:root{color-scheme:dark;--gold:#e9c675;--bg:#101218;--card:#1b1e27}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#f5f5f5;font-family:Arial,sans-serif;line-height:1.6}
+header,main,footer{max-width:1050px;margin:auto;padding:24px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-size:30px;font-weight:bold;color:var(--gold);text-decoration:none}
+nav,.actions{display:flex;gap:12px;flex-wrap:wrap}
+button{background:var(--gold);color:#151515;border:0;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:bold;cursor:pointer}
+button.secondary{background:transparent;color:var(--gold);border:1px solid #665837}
+button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,a:focus-visible{outline:3px solid white;outline-offset:4px}
+.hero{padding:45px 0}
+h1{font-size:clamp(34px,7vw,60px);line-height:1.12;max-width:800px}
+h2{line-height:1.3}
+.muted{color:#bdc1cc}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:28px 0}
+.card{background:var(--card);border:1px solid #303440;border-radius:20px;padding:25px}
+.panel{max-width:580px;margin:24px auto}
+label{display:block;margin-top:15px}
+input,textarea{display:block;width:100%;background:#101218;color:white;border:1px solid #515565;border-radius:10px;padding:13px;font:inherit;margin-top:6px}
+form button{margin-top:22px}
+[hidden]{display:none!important}
+#message{padding:16px;border-radius:12px;background:#202b27;color:#b8f1cf;white-space:pre-wrap;overflow-wrap:anywhere}
+#message.error{background:#392327;color:#ffbdc4}
+footer{font-size:14px;color:#a9adba}
+.badge{color:var(--gold)}
+#budgetPanel details{margin:12px 0;padding:14px;border:1px solid #55596a;border-radius:12px}
+#budgetPanel summary{cursor:pointer;color:var(--gold);font-weight:700}
+#budgetPanel fieldset{margin:12px 0;border:1px solid #55596a;border-radius:8px;min-width:0}
+.budget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px}
+#budgetPanel select{width:100%;padding:10px;background:var(--bg);color:inherit}
+#budgetPanel dd{margin:0;color:var(--gold);font-weight:700}
+#budgetPanel .budget-check{display:flex;align-items:baseline;gap:10px;margin-top:14px}
+#budgetPanel input[type=checkbox]{width:auto}
+
+body{background:radial-gradient(ellipse at 15% 0%,#282433 0%,transparent 48%),#101218;font-family:system-ui,sans-serif}
+header{border-bottom:1px solid #ffffff16}
+main{padding-inline:clamp(14px,4vw,24px)}
+.hero{padding:clamp(28px,8vw,85px) 0}
+.hero h1{letter-spacing:-.055em;margin:.38em 0}
+#dashboard{max-width:920px}
+#dashboard.card{padding:clamp(14px,4vw,30px)}
+#budgetPanel details{background:#141720;border-color:#353a49;padding:12px}
+#budgetPanel summary{color:#f4f2ed}
+#budgetProjections{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#budgetProjections div{background:#242733;border-radius:10px;padding:8px;min-width:0}
+#budgetProjections dt{font-size:.8rem}
+#budgetProjections dd{overflow-wrap:anywhere}
+.vitrine-section{margin:24px 0;border-top:1px solid #343743;padding-top:12px}
+.vitrine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.vitrine-card{background:#141721;border:1px solid #343743;border-radius:16px;padding:18px;overflow-wrap:anywhere}
+.vitrine-card h3,.vitrine-card p{margin:8px 0}
+.vitrine-card a{color:var(--gold)}
+.vitrine-logo{width:54px;height:54px;border-radius:12px;background:#353045;color:#f6d98d;display:grid;place-items:center;font-weight:750;object-fit:contain}
+#vitrineFields{border:0;padding:0;margin:0;min-width:0}
+
+</style>
+</head>
+<body>
+<header>
+<a class="logo" href="./">GagneO</a>
+<nav aria-label="Navigation">
+<button class="secondary" id="homeButton" type="button">Accueil</button>
+<button id="loginButton" type="button">Connexion</button>
+<button class="secondary" id="logoutButton" type="button" hidden>Déconnexion</button>
+</nav>
+</header>
+
+<main>
+<p id="message" role="status" aria-live="polite" hidden></p>
+
+<section id="home">
+<div class="hero">
+<span class="badge">PARTICULIERS & PROFESSIONNELS</span>
+<h1>Votre quotidien mérite plus d’économies.</h1>
+<p class="muted">GagneO prépare un espace pour découvrir des offres et mettre en relation particuliers et professionnels.</p>
+<div class="actions">
+<button id="individualButton" type="button">Inscription particulier</button>
+<button class="secondary" id="professionalButton" type="button">Inscription professionnel</button>
+</div>
+</div>
+<div class="grid">
+<article class="card">
+<h2>Pour les particuliers</h2>
+<p>Créez votre compte pour rejoindre GagneO et préparer votre accès aux futures offres.</p>
+</article>
+<article class="card">
+<h2>Pour les professionnels</h2>
+<p>Inscrivez votre entreprise pour rejoindre le projet et préparer la présentation de vos services.</p>
+</article>
+</div>
+<p class="muted">GagneO est en cours de lancement. Connectez-vous pour consulter les offres. Les professionnels peuvent publier leurs réductions depuis leur espace.</p>
+</section>
+
+<section id="signup" class="card panel" hidden>
+<h2 id="signupTitle">Créer un compte</h2>
+<form id="signupForm">
+<label for="firstName">Prénom</label>
+<input id="firstName" autocomplete="given-name" maxlength="100" required>
+
+<label for="lastName">Nom</label>
+<input id="lastName" autocomplete="family-name" maxlength="100" required>
+
+<div id="professionalFields" hidden>
+<label for="companyName">Nom de l’entreprise</label>
+<input id="companyName" autocomplete="organization" maxlength="160">
+
+<label for="activity">Activité ou service proposé</label>
+<input id="activity" maxlength="200">
+</div>
+
+<label for="signupEmail">Adresse e-mail</label>
+<input id="signupEmail" type="email" autocomplete="email" required>
+
+<label for="signupPassword">Mot de passe — 8 caractères minimum</label>
+<input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required>
+
+<label for="confirmPassword">Confirmer le mot de passe</label>
+<input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" required>
+
+<button type="submit">Créer mon compte</button>
+</form>
+</section>
+
+<section id="login" class="card panel" hidden>
+<h2>Se connecter à GagneO</h2>
+<form id="loginForm">
+<label for="loginEmail">Adresse e-mail</label>
+<input id="loginEmail" type="email" autocomplete="email" required>
+
+<label for="loginPassword">Mot de passe</label>
+<input id="loginPassword" type="password" autocomplete="current-password" required>
+
+<button type="submit">Me connecter</button>
+</form>
+<p class="muted">Si tu as déjà créé un compte, utilise ici ton e-mail et ton mot de passe habituels.</p>
+</section>
+
+<section id="dashboard" class="card panel" hidden>
+<span class="badge">MON ESPACE GAGNEO</span>
+<h2 id="welcome">Bienvenue</h2>
+<p id="accountEmail"></p>
+<p id="accountType"></p>
+<section id="budgetPanel" hidden aria-labelledby="budgetTitle">
+<details>
+<summary id="budgetTitle">Mon budget</summary>
+<form id="budgetForm" autocomplete="off">
+<p class="muted">Saisis tes montants mensuels en euros. Pour une facture annuelle, divise son montant par 12.</p>
+<fieldset><legend>Mes revenus mensuels</legend><div class="budget-grid" id="budgetIncome"></div></fieldset>
+<fieldset><legend>Mes dépenses mensuelles</legend><div class="budget-grid" id="budgetExpenses"></div></fieldset>
+</form>
+<p id="budgetBalance" aria-live="polite">Saisis tes revenus et tes dépenses pour voir ton bilan.</p>
+</details>
+<details>
+<summary>Mes actions pour économiser</summary>
+<p>Compare deux contrats avant de compter une économie dans ton budget.</p>
+<div class="budget-grid">
+<label>Contrat ou option à retirer (€/mois)<input form="budgetForm" name="removed" type="number" min="0" step="0.01" inputmode="decimal"></label>
+<label>Services à remplacer ou hausse du contrat conservé (€/mois)<input form="budgetForm" name="replacement" type="number" min="0" step="0.01" inputmode="decimal"></label>
+<label>Frais ponctuels (€)<input form="budgetForm" name="fees" type="number" min="0" step="0.01" inputmode="decimal"></label>
+<label>Premier mois avec le nouveau tarif<select form="budgetForm" name="start" id="budgetStart"></select></label>
+</div>
+<p class="muted">Pour une assurance auto, vérifie par écrit le véhicule couvert, les garanties, franchises, exclusions et dates. Garde la couverture obligatoire sans interruption. Saisis les deux contrats dans tes dépenses actuelles avant de les comparer ici.</p>
+<label class="budget-check"><input form="budgetForm" name="confirmed" type="checkbox"> J’ai vérifié les conditions et j’ajoute le gain net à mon objectif.</label>
+<p id="budgetAction" aria-live="polite"></p>
+</details>
+<details>
+<summary>Mon objectif</summary>
+<div class="budget-grid">
+<label>Épargne déjà de côté (€)<input form="budgetForm" name="initial" type="number" min="0" step="0.01" inputmode="decimal"></label>
+<label>Montant à mettre de côté chaque mois (€)<input form="budgetForm" name="monthly" type="number" min="0" step="0.01" inputmode="decimal"></label>
+</div>
+<p id="budgetWarning" role="status"></p>
+<button id="ouvrirBudget" type="button" class="secondary">Ouvrir Mon budget</button>
+<dl class="budget-grid" id="budgetProjections">
+<div><dt>Dans 3 mois</dt><dd id="budget3">—</dd></div>
+<div><dt>Dans 6 mois</dt><dd id="budget6">—</dd></div>
+<div><dt>Dans 1 an</dt><dd id="budget12">—</dd></div>
+</dl>
+<p class="muted">Projection à versements constants, sans intérêts. Les frais d’un changement confirmé sont déduits au mois indiqué.</p>
+</details>
+<p class="muted">Tes montants restent dans cette session. La déconnexion les efface.</p>
+</section>
+<section id="vitrinePro" class="vitrine-section" hidden>
+<h2>Ma vitrine professionnelle</h2>
+<form id="vitrineForm">
+<fieldset id="vitrineFields">
+<label>SIRET de ton établissement<input name="siret" inputmode="numeric" maxlength="20" required></label>
+<button class="secondary" id="chercherSiret" type="button">Rechercher mon établissement</button>
+<p id="vitrineIdentite"></p>
+<label id="confirmerEtablissement" hidden><input type="checkbox" name="confirme" style="width:auto"> C’est bien mon établissement</label>
+<div id="verificationManuelle" hidden>
+<label>Nom officiel de l’établissement<input name="nomManuel" maxlength="200"></label>
+<label>Commune<input name="villeManuelle" maxlength="120"></label>
+</div>
+<div class="budget-grid">
+<label>Enseigne affichée<input name="enseigne" maxlength="120"></label>
+<label>Adresse HTTPS du logo<input name="logo" type="url" maxlength="1000"></label>
+</div>
+<label>Site internet<input name="site" type="url" maxlength="1000"></label>
+<label>Présentation<textarea name="description" maxlength="700" rows="3"></textarea></label>
+<label>Texte de ta publicité (facultatif)<textarea name="campagne" maxlength="240" rows="2"></textarea></label>
+<button type="submit">Enregistrer ma vitrine</button>
+</fieldset>
+</form>
+<p id="vitrineStatus" role="status"></p>
+</section>
+<div id="proOffers" hidden>
+<h2>Publier une offre</h2>
+<form id="offerForm">
+<label>Titre de l’offre<input name="title" maxlength="160" required></label>
+<label>Description et conditions<textarea name="description" rows="4" maxlength="3000" required></textarea></label>
+<label>Ville<input name="city" maxlength="120" required></label>
+<label>Prix habituel (€)<input name="original_price" type="number" min="0.01" step="0.01" required></label>
+<label>Prix réduit (€)<input name="reduced_price" type="number" min="0" step="0.01" required></label>
+<p id="savingPreview" class="badge" aria-live="polite">Économie : —</p>
+<label>Fin de validité<input name="expires_at" type="datetime-local" required></label>
+<button type="submit">Publier mon offre</button>
+<p id="offerResult" role="status"></p>
+</form></div>
+
+<section id="sponsorsVitrines" class="vitrine-section" hidden>
+<h2>À découvrir chez nos partenaires</h2>
+<div class="vitrine-grid" id="listeSponsors"></div>
+</section>
+<section id="annuaireVitrines" class="vitrine-section" hidden>
+<h2>Les vitrines professionnelles</h2>
+<div class="vitrine-grid" id="listeVitrines"></div>
+</section>
+<h2>Les offres pour économiser</h2>
+<button id="refreshOffers" class="secondary" type="button">Actualiser les offres</button>
+<p id="offersStatus" role="status"></p>
+<div id="offersList"></div>
+</section>
+</main>
+
+<footer>© GagneO — Économies et opportunités au quotidien. · Version vitrines · SIRET automatique</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+let client = null;
+let accountType = "particulier";
+let signedIn = false;
+let offerRequest = 0;
+const OFFERS_TABLE = "gagneo_offers";
+
+function message(text, error = false) {
+  $("message").textContent = text;
+  $("message").classList.toggle("error", error);
+  $("message").hidden = !text;
+}
+
+function show(section) {
+  for (const id of ["home", "signup", "login", "dashboard"]) {
+    $(id).hidden = id !== section;
+  }
+}
+
+function friendlyError(error) {
+  const text = error?.message || String(error);
+  if (/invalid login credentials/i.test(text)) {
+    return "E-mail ou mot de passe incorrect. Si le compte existe déjà, connecte-toi avec son mot de passe.";
+  }
+  if (/email not confirmed/i.test(text)) {
+    return "Confirme d’abord ton adresse e-mail avec le lien reçu dans ta messagerie. Vérifie aussi les courriers indésirables.";
+  }
+  if (/already registered/i.test(text)) {
+    return "Ce compte existe déjà. Utilise le bouton Connexion.";
+  }
+  if (/rate limit|too many requests|security purposes/i.test(text)) {
+    return "Trop de tentatives rapprochées. Patiente quelques minutes avant de réessayer.";
+  }
+  if (/failed to fetch|network/i.test(text)) {
+    return "Connexion au serveur impossible. Vérifie ta connexion Internet puis réessaie.";
+  }
+  if (/schema cache|could not find the table/i.test(text)) {
+    return "La table des offres gagneo_offers est introuvable dans le projet Supabase connecté. Code : " + text;
+  }
+  if (/row-level security|permission denied/i.test(text)) {
+    return "Supabase refuse cette opération. Les autorisations de la table gagneo_offers doivent être vérifiées. Détail : " + text;
+  }
+  return "L’opération n’a pas abouti : " + text;
+}
+
+$("ouvrirBudget").onclick = () => {
+  const details = $("budgetTitle").closest("details");
+  details.open = true;
+  $("budgetTitle").focus();
+  details.scrollIntoView({block: "start"});
+};
+const vitrineForm = $("vitrineForm");
+let vitrineUser;
+let vitrineSession = null;
+let vitrineProfil;
+let vitrineIdentite;
+let vitrineGeneration = 0;
+let rechercheGeneration = 0;
+let rechercheMinuteur;
+const champsVitrine = ["enseigne", "description", "logo", "site", "campagne"];
+const siretSaisi = () => vitrineForm.elements.siret.value.replace(/\s/g, "");
+
+function adresseHttps(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !url.username && !url.password ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function afficherIdentite() {
+  $("vitrineIdentite").textContent = vitrineIdentite
+    ? [vitrineIdentite.nom, vitrineIdentite.ville].filter(Boolean).join(" · ")
+    : "";
+}
+
+async function rechercherSiret(siret) {
+  if (!/^\d{14}$/.test(siret)) throw new Error("Saisis les 14 chiffres de ton SIRET.");
+  const response = await fetch("https://recherche-entreprises.api.gouv.fr/search?q=" + siret,
+    {signal: AbortSignal.timeout(10000)});
+  if (!response.ok) throw new Error("L’annuaire est momentanément indisponible.");
+  const {results} = await response.json();
+  for (const entreprise of results || []) {
+    const etablissement = [...(entreprise.matching_etablissements || []), entreprise.siege]
+      .find(item => item?.siret === siret);
+    if (etablissement && entreprise.nom_complet) {
+      if (etablissement.etat_administratif === "F")
+        throw Object.assign(new Error("Cet établissement est indiqué comme fermé."), {ferme: true});
+      return {siret, nom: entreprise.nom_complet, ville: etablissement.libelle_commune || "",
+        enseigne: etablissement.liste_enseignes?.[0] || etablissement.nom_commercial || ""};
+    }
+  }
+  throw new Error("SIRET introuvable dans l’annuaire public.");
+}
+
+function reinitialiserRecherche() {
+  clearTimeout(rechercheMinuteur);
+  rechercheGeneration++;
+  vitrineIdentite = undefined;
+  vitrineForm.elements.confirme.checked = false;
+  vitrineForm.elements.nomManuel.value = "";
+  vitrineForm.elements.villeManuelle.value = "";
+  $("confirmerEtablissement").hidden = true;
+  $("verificationManuelle").hidden = true;
+  $("chercherSiret").disabled = false;
+  afficherIdentite();
+}
+
+async function lancerRechercheSiret() {
+  reinitialiserRecherche();
+  const siret = siretSaisi();
+  const version = rechercheGeneration;
+  if (!/^\d{14}$/.test(siret)) {
+    $("vitrineStatus").textContent = "Saisis les 14 chiffres de ton SIRET.";
+    return;
+  }
+  $("chercherSiret").disabled = true;
+  $("vitrineStatus").textContent = "Recherche dans l’annuaire officiel…";
+  try {
+    const identite = await rechercherSiret(siret);
+    if (version !== rechercheGeneration) return;
+    vitrineIdentite = identite;
+    afficherIdentite();
+    $("confirmerEtablissement").hidden = false;
+    $("vitrineStatus").textContent = "Établissement trouvé. Confirme qu’il s’agit bien du tien.";
+  } catch (error) {
+    if (version !== rechercheGeneration) return;
+    $("verificationManuelle").hidden = Boolean(error.ferme);
+    $("vitrineStatus").textContent = error.ferme ? error.message
+      : (error.message === "SIRET introuvable dans l’annuaire public." ? error.message
+        : "L’annuaire est momentanément indisponible.") +
+        " Tu peux envoyer ta vitrine pour vérification manuelle.";
+  } finally {
+    if (version === rechercheGeneration) $("chercherSiret").disabled = false;
+  }
+}
+
+vitrineForm.elements.siret.addEventListener("input", () => {
+  reinitialiserRecherche();
+  const valide = /^\d{14}$/.test(siretSaisi());
+  $("vitrineStatus").textContent = valide ? "" : "Saisis les 14 chiffres de ton SIRET.";
+  if (valide) rechercheMinuteur = setTimeout(lancerRechercheSiret, 350);
+});
+
+$("chercherSiret").onclick = lancerRechercheSiret;
+
+vitrineForm.onsubmit = async event => {
+  event.preventDefault();
+  if (!vitrineUser || vitrineProfil?.approuve) return;
+  const siret = siretSaisi();
+  const manuelle = !$("verificationManuelle").hidden;
+  const identite = manuelle ? {
+    siret,
+    nom: vitrineForm.elements.nomManuel.value.trim(),
+    ville: vitrineForm.elements.villeManuelle.value.trim()
+  } : vitrineIdentite;
+  if (!/^\d{14}$/.test(siret) || identite?.siret !== siret || !identite.nom ||
+      (manuelle ? !identite.ville : !vitrineForm.elements.confirme.checked)) {
+    $("vitrineStatus").textContent = manuelle
+      ? "Renseigne le nom officiel et la commune pour la vérification manuelle."
+      : "Recherche ton établissement et confirme qu’il s’agit bien du tien.";
+    return;
+  }
+  const row = Object.fromEntries(champsVitrine.map(name => [name, vitrineForm.elements[name].value.trim()]));
+  if (["logo", "site"].some(name => row[name] && !adresseHttps(row[name]))) {
+    $("vitrineStatus").textContent = "Le lien du logo et celui du site doivent commencer par https://.";
+    return;
+  }
+  const generation = vitrineGeneration;
+  const owner = vitrineUser;
+  Object.assign(row, {siret: identite.siret, nom: identite.nom, ville: identite.ville});
+  $("vitrineFields").disabled = true;
+  try {
+    const table = client.from("gagneo_vitrines");
+    const operation = vitrineProfil ? table.update(row).eq("owner_id", owner) : table.insert(row);
+    const {data, error} = await operation.select().single();
+    if (error) throw error;
+    if (generation !== vitrineGeneration) return;
+    vitrineProfil = data;
+    vitrineIdentite = data;
+    $("verificationManuelle").hidden = true;
+    vitrineForm.elements.confirme.checked = true;
+    afficherIdentite();
+    $("vitrineStatus").textContent = "Vitrine enregistrée. Elle sera visible après validation par GagneO.";
+  } catch {
+    if (generation === vitrineGeneration) $("vitrineStatus").textContent = "Impossible d’enregistrer la vitrine. Réessaie ou contacte GagneO.";
+  } finally {
+    if (generation === vitrineGeneration) $("vitrineFields").disabled = false;
+  }
+};
+
+function carteVitrine(profil, sponsor) {
+  const article = document.createElement("article");
+  article.className = "vitrine-card";
+  const marque = profil.enseigne || profil.nom;
+  const image = adresseHttps(profil.logo);
+  const initiales = document.createElement("span");
+  initiales.className = "vitrine-logo";
+  initiales.setAttribute("aria-hidden", "true");
+  initiales.textContent = marque.trim().slice(0, 2).toUpperCase();
+  article.append(initiales);
+  if (image) {
+    const logo = document.createElement("img");
+    logo.className = "vitrine-logo";
+    logo.alt = "";
+    logo.referrerPolicy = "no-referrer";
+    logo.onload = () => { initiales.hidden = true; logo.hidden = false; };
+    logo.hidden = true;
+    logo.src = image;
+    article.append(logo);
+  }
+  if (sponsor) {
+    const label = document.createElement("p");
+    label.className = "badge";
+    label.textContent = "Sponsorisé";
+    article.append(label);
+  }
+  const titre = document.createElement("h3");
+  titre.textContent = marque;
+  article.append(titre);
+  for (const value of [profil.ville, sponsor ? profil.campagne : profil.description]) {
+    if (!value) continue;
+    const ligne = document.createElement("p");
+    ligne.textContent = value;
+    article.append(ligne);
+  }
+  const site = adresseHttps(profil.site);
+  if (site) {
+    const lien = document.createElement("a");
+    lien.href = site;
+    lien.target = "_blank";
+    lien.rel = "noopener noreferrer sponsored";
+    lien.textContent = "Voir le site de l’établissement";
+    article.append(lien);
+  }
+  return article;
+}
+
+async function chargerVitrines(user) {
+  const generation = ++vitrineGeneration;
+  vitrineUser = user?.user_metadata?.account_type === "professionnel" ? user.id : undefined;
+  vitrineProfil = undefined;
+  vitrineForm.reset();
+  reinitialiserRecherche();
+  $("vitrinePro").hidden = !vitrineUser;
+  $("annuaireVitrines").hidden = true;
+  $("listeVitrines").replaceChildren();
+  $("listeSponsors").replaceChildren();
+  $("sponsorsVitrines").hidden = true;
+  $("vitrineStatus").textContent = "";
+  if (!user || !client) return;
+  $("vitrineFields").disabled = true;
+  const owner = vitrineUser;
+  const table = () => client.from("gagneo_vitrines");
+  const [annuaire, compte] = await Promise.all([
+    table().select("nom,enseigne,ville,description,logo,site,campagne,sponsor_jusquau")
+      .eq("approuve", true).order("sponsor_jusquau", {ascending:false, nullsFirst:false}).limit(50),
+    owner ? table().select().eq("owner_id", owner).maybeSingle() : Promise.resolve(null)
+  ]);
+  if (generation !== vitrineGeneration) return;
+  if (!annuaire.error && annuaire.data.length) {
+    $("annuaireVitrines").hidden = false;
+    for (const profil of annuaire.data) {
+      $("listeVitrines").append(carteVitrine(profil, false));
+      if (profil.campagne && Date.parse(profil.sponsor_jusquau) > Date.now()) {
+        $("sponsorsVitrines").hidden = false;
+        $("listeSponsors").append(carteVitrine(profil, true));
+      }
+    }
+  }
+  if (!compte) return;
+  if (compte.error) {
+    $("vitrineStatus").textContent = "La vitrine est indisponible. Vérifie que le module a été installé dans Supabase.";
+    return;
+  }
+  vitrineProfil = compte.data;
+  if (vitrineProfil) {
+    vitrineIdentite = vitrineProfil;
+    vitrineForm.elements.siret.value = vitrineProfil.siret;
+    for (const name of champsVitrine) vitrineForm.elements[name].value = vitrineProfil[name];
+    afficherIdentite();
+    vitrineForm.elements.confirme.checked = true;
+    $("vitrineStatus").textContent = vitrineProfil.approuve
+      ? "Vitrine publiée. Contacte GagneO pour la modifier ou activer une campagne."
+      : "Vitrine en attente de validation.";
+  }
+  $("vitrineFields").disabled = Boolean(vitrineProfil?.approuve);
+}
+
+const budgetForm = $("budgetForm");
+const budgetGroups = {
+  budgetIncome: ["Salaire net", "Prestations sociales perçues", "Autres revenus"],
+  budgetExpenses: ["Loyer", "Électricité et gaz", "Eau", "Téléphone et internet",
+    "Courses", "Transport", "Assurances", "Frais bancaires", "Crédits", "Autres dépenses"]
+};
+let budgetUser = null;
+for (const [group, labels] of Object.entries(budgetGroups)) {
+  labels.forEach((title, index) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.step = "0.01";
+    input.inputMode = "decimal";
+    input.name = group + index;
+    label.append(title, input);
+    $(group).append(label);
+  });
+}
+for (let month = 1; month <= 12; month++) {
+  $("budgetStart").add(new Option("Mois " + month, month));
+}
+const budgetCurrency = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+const budgetEuros = cents => budgetCurrency.format(cents / 100);
+const budgetInput = name => budgetForm.elements.namedItem(name);
+const budgetCents = name => Math.round((budgetInput(name).valueAsNumber || 0) * 100);
+
+function updateBudget() {
+  const sum = group => budgetGroups[group].reduce((total, _, index) => total + budgetCents(group + index), 0);
+  const income = sum("budgetIncome");
+  const expenses = sum("budgetExpenses");
+  const balance = income - expenses;
+  const gain = budgetCents("removed") - budgetCents("replacement");
+  const fees = budgetCents("fees");
+  const start = Number(budgetInput("start").value);
+  const confirmed = budgetInput("confirmed").checked && gain > 0;
+  const monthly = budgetCents("monthly");
+  const initial = budgetCents("initial");
+  const hasBudget = Object.keys(budgetGroups).every(group =>
+    [...$(group).querySelectorAll("input")].some(input => input.value !== ""));
+  const valid = budgetForm.checkValidity();
+  $("budgetBalance").textContent = valid
+    ? "Revenus " + budgetEuros(income) + " · Dépenses " + budgetEuros(expenses) +
+      (balance < 0 ? " · Manque chaque mois " + budgetEuros(-balance) : " · Reste chaque mois " + budgetEuros(balance))
+    : "Vérifie les montants saisis. Utilise des valeurs à partir de zéro avec deux décimales au maximum.";
+  $("budgetAction").textContent = valid && gain > 0
+    ? budgetEuros(gain) + "/mois " + (confirmed ? "ajoutés à l’objectif" : "à vérifier") +
+      " · Gain net la première année " + budgetEuros(gain * (13 - start) - fees)
+    : "Renseigne les coûts pour calculer une économie éventuelle.";
+  const coversFees = !confirmed || monthly + gain >= fees;
+  const feasible = hasBudget && monthly <= balance && coversFees;
+  $("budgetWarning").textContent = hasBudget
+    ? feasible ? "" : "Ton budget actuel ne couvre pas ce versement ou les frais du changement."
+    : "Renseigne tes revenus et dépenses dans Mon budget pour calculer ta projection.";
+  $("ouvrirBudget").hidden = hasBudget;
+  for (const months of [3, 6, 12]) {
+    const savings = confirmed && months >= start ? gain * (months - start + 1) - fees : 0;
+    $("budget" + months).textContent = valid && feasible
+      ? budgetEuros(initial + monthly * months + savings) : "—";
+  }
+}
+
+budgetForm.addEventListener("submit", event => event.preventDefault());
+for (const control of budgetForm.elements) {
+  control.addEventListener("input", () => {
+    if (["removed", "replacement", "fees", "start"].includes(control.name)) {
+      budgetInput("confirmed").checked = false;
+    }
+    updateBudget();
+  });
+}
+
+function showBudget(user) {
+  const eligible = user && user.user_metadata?.account_type !== "professionnel";
+  const nextUser = eligible ? user.id : null;
+  if (budgetUser !== nextUser) {
+    budgetForm.reset();
+    $("budgetPanel").querySelectorAll("details").forEach(details => { details.open = false; });
+    budgetUser = nextUser;
+  }
+  $("budgetPanel").hidden = !eligible;
+  if (eligible) updateBudget();
+}
+
+function renderSession(session) {
+  showBudget(session?.user);
+  const nextVitrineSession = session?.user.id ?? null;
+  if (nextVitrineSession !== vitrineSession) {
+    vitrineSession = nextVitrineSession;
+    void chargerVitrines(session?.user);
+  }
+  signedIn = Boolean(session?.user);
+  $("loginButton").hidden = signedIn;
+  $("logoutButton").hidden = !signedIn;
+
+  if (!signedIn) {
+    ++offerRequest;
+    $("offersList").replaceChildren();
+    show("home");
+    return;
+  }
+
+  const user = session.user;
+  $("proOffers").hidden = user.user_metadata?.account_type !== "professionnel";
+  const info = user.user_metadata || {};
+  $("welcome").textContent = info.first_name
+    ? "Bienvenue, " + info.first_name
+    : "Bienvenue sur GagneO";
+  $("accountEmail").textContent = user.email || "";
+  $("accountType").textContent =
+    info.account_type === "professionnel"
+      ? "Compte professionnel" + (info.company_name ? " — " + info.company_name : "")
+      : info.account_type === "particulier"
+        ? "Compte particulier"
+        : "Compte GagneO";
+  show("dashboard");
+  loadOffers();
+}
+
+function openSignup(type) {
+  message("");
+  if (signedIn) {
+    show("dashboard");
+    return;
+  }
+  accountType = type;
+  const professional = type === "professionnel";
+  $("signupTitle").textContent = professional
+    ? "Créer un compte professionnel"
+    : "Créer un compte particulier";
+  $("professionalFields").hidden = !professional;
+  $("companyName").required = professional;
+  $("activity").required = professional;
+  show("signup");
+}
+
+$("individualButton").onclick = () => openSignup("particulier");
+$("professionalButton").onclick = () => openSignup("professionnel");
+$("homeButton").onclick = () => {
+  message("");
+  show(signedIn ? "dashboard" : "home");
+};
+$("loginButton").onclick = () => {
+  message("");
+  show("login");
+};
+
+async function submit(form, action) {
+  const button = form.querySelector('button[type="submit"]');
+  if (!client) {
+    message("La connexion à Supabase n’a pas pu démarrer. Recharge la page avec une connexion Internet active.", true);
+    return;
+  }
+  button.disabled = true;
+  message("");
+  try {
+    await action();
+  } catch (error) {
+    message(friendlyError(error), true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+$("signupForm").onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget, async () => {
+    const password = $("signupPassword").value;
+    if (password !== $("confirmPassword").value) {
+      message("Les deux mots de passe ne sont pas identiques.", true);
+      return;
+    }
+
+    const firstName = $("firstName").value.trim();
+    const lastName = $("lastName").value.trim();
+    const company = $("companyName").value.trim();
+    const activity = $("activity").value.trim();
+
+    if (!firstName || !lastName ||
+        (accountType === "professionnel" && (!company || !activity))) {
+      message("Merci de remplir tous les champs demandés.", true);
+      return;
+    }
+
+    const { data, error } = await client.auth.signUp({
+      email: $("signupEmail").value.trim(),
+      password,
+      options: {
+        data: {
+          account_type: accountType,
+          first_name: firstName,
+          last_name: lastName,
+          full_name: firstName + " " + lastName,
+          company_name: accountType === "professionnel" ? company : "",
+          activity: accountType === "professionnel" ? activity : ""
+        }
+      }
+    });
+
+    if (error) throw error;
+    $("signupForm").reset();
+
+    if (data.session) {
+      renderSession(data.session);
+      message("Votre compte est créé et vous êtes connecté.");
+    } else {
+      show("login");
+      message("Demande d’inscription envoyée. Si un e-mail de confirmation vous est adressé, ouvrez son lien avant de vous connecter. Si vous avez déjà un compte, connectez-vous avec votre mot de passe habituel.");
+    }
+  });
+};
+
+$("loginForm").onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget, async () => {
+    const { data, error } = await client.auth.signInWithPassword({
+      email: $("loginEmail").value.trim(),
+      password: $("loginPassword").value
+    });
+    if (error) throw error;
+    $("loginForm").reset();
+    renderSession(data.session);
+    message("Connexion réussie.");
+  });
+};
+
+$("logoutButton").onclick = async () => {
+  if (!client) return;
+  $("logoutButton").disabled = true;
+  try {
+    const { error } = await client.auth.signOut();
+    if (error) throw error;
+    renderSession(null);
+    message("Vous êtes déconnecté.");
+  } catch (error) {
+    message(friendlyError(error), true);
+  } finally {
+    $("logoutButton").disabled = false;
+  }
+};
+
+
+const euros = n => Number(n).toLocaleString("fr-FR", {style:"currency",currency:"EUR"});
+const offerForm = $("offerForm");
+offerForm.oninput = () => {
+  const a = Number(offerForm.elements.original_price.value);
+  const b = Number(offerForm.elements.reduced_price.value);
+  $("savingPreview").textContent = a > b && b >= 0
+    ? "Économie : " + euros(a-b) : "Le prix réduit doit être inférieur au prix habituel.";
+};
+$("refreshOffers").onclick = loadOffers;
+async function loadOffers() {
+  if (!client || !signedIn) return;
+  const request = ++offerRequest;
+  $("offersStatus").textContent = "Chargement des offres…";
+  $("offersList").replaceChildren();
+  try {
+    const {data,error} = await client.from(OFFERS_TABLE)
+      .select("id,title,description,company_name,city,original_price,reduced_price,expires_at")
+      .eq("published",true).gt("expires_at",new Date().toISOString())
+      .order("created_at",{ascending:false}).limit(50);
+    if (request !== offerRequest || !signedIn) return;
+    if (error) throw error;
+    message("Connexion aux offres réussie.");
+    $("offersStatus").textContent = data.length ? "" : "Aucune offre publiée pour le moment.";
+    for (const o of data) {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.marginTop = "20px";
+      const h = document.createElement("h3");
+      h.textContent = o.title;
+      card.append(h);
+      for (const text of [
+        [o.company_name,o.city].filter(Boolean).join(" — "),o.description,
+        "Prix habituel : "+euros(o.original_price),
+        "Prix réduit : "+euros(o.reduced_price),
+        "Vous économisez "+euros(o.original_price-o.reduced_price),
+        "Valable jusqu’au "+new Date(o.expires_at).toLocaleString("fr-FR")
+      ]) {
+        const p = document.createElement("p");
+        p.textContent = text;
+        card.append(p);
+      }
+      $("offersList").append(card);
+    }
+  } catch(e) {
+    if (request === offerRequest && signedIn) {
+      $("offersStatus").textContent = "Les offres n’ont pas pu être chargées. Appuyez sur Actualiser les offres pour réessayer.";
+      message(friendlyError(e), true);
+    }
+  }
+}
+offerForm.onsubmit = event => {
+  event.preventDefault();
+  submit(event.currentTarget,async () => {
+    $("offerResult").textContent = "";
+    const {data:auth,error:authError} = await client.auth.getUser();
+    if (authError) throw authError;
+    const u = auth.user;
+    if (!u || u.user_metadata?.account_type !== "professionnel")
+      throw new Error("Connectez-vous avec votre compte professionnel.");
+    const f = offerForm.elements;
+    const a = Number(f.original_price.value), b = Number(f.reduced_price.value);
+    const end = new Date(f.expires_at.value);
+    const title = f.title.value.trim(), description = f.description.value.trim(), city = f.city.value.trim();
+    if (!title || !description || !city) throw new Error("Complétez tous les champs.");
+    if (!Number.isFinite(a) || !Number.isFinite(b) || a <= 0 || b < 0 || b >= a)
+      throw new Error("Le prix réduit doit être positif ou nul et inférieur au prix habituel.");
+    if (!Number.isFinite(end.getTime()) || end <= new Date())
+      throw new Error("Choisissez une fin de validité dans le futur.");
+    const {error} = await client.from(OFFERS_TABLE).insert({
+      owner_id:u.id,title,description,city,
+      company_name:u.user_metadata.company_name || "",
+      original_price:a,reduced_price:b,expires_at:end.toISOString(),published:true
+    });
+    if (error) throw error;
+    offerForm.reset();
+    $("savingPreview").textContent = "Économie : —";
+    $("offerResult").textContent = "Votre offre a été publiée.";
+    message("Votre offre a été publiée.");
+    await loadOffers();
+  });
+};
+
+async function init() {
+  try {
+    if (!window.supabase) throw new Error("Le module Supabase n’a pas pu être chargé. Recharge la page.");
+    client = window.supabase.createClient(
+      "https://irgobjrwdjmvvvvgtdhl.supabase.co",
+      "sb_publishable_AfFGoMzcDWQK_DzrU1TBqw_hqioF9eu"
+    );
+
+    client.auth.onAuthStateChange((_event, session) => {
+      setTimeout(() => renderSession(session), 0);
+    });
+
+    const { data, error } = await client.auth.getSession();
+    if (error) throw error;
+    renderSession(data.session);
+  } catch (error) {
+    message(friendlyError(error), true);
+  }
+}
+init();
+</script>
+</body>
+</html>
